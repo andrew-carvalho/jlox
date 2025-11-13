@@ -97,11 +97,10 @@ public class Scanner {
 			addToken(match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
 			break;
 		case '/':
-			// Comments.
 			if(match('/')) {
-				while(peek() != '\n' && !isAtEnd()) {
-					advance();
-				}
+				parseSingleLineComment();
+			} else if(match('*')) {
+				parseMultiLineComment();
 			} else {
 				addToken(TokenType.SLASH);
 			}
@@ -160,6 +159,26 @@ public class Scanner {
 		}
 		
 		return source.charAt(current + 1);
+	}
+	
+	void parseSingleLineComment() {
+		while(peek() != '\n' && !isAtEnd()) {
+			advance();
+		}
+	}
+	
+	void parseMultiLineComment() {
+		while(peek() != '*' && !isAtEnd()) {
+			advance();
+		}
+		
+		advance();
+		
+		if(peek() == '/') {
+			advance();
+		} else {
+			Lox.error(line, "Unexpected character.");
+		}
 	}
 	
 	void parseString() {
